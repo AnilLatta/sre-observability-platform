@@ -1,0 +1,27 @@
+groups:
+  - name: enterprise_slo_alerts
+    rules:
+      # SLO Target: 99.9% Availability (Error Rate < 0.1%)
+      - alert: ErrorBudgetBurnRateFast
+        expr: (
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > (14.4 * 0.001)
+        for: 2m
+        labels:
+          severity: critical
+          tier: platform-sre
+        annotations:
+          summary: "Fast Error Budget Burn Rate Detected (14.4x rate)"
+          description: "Microservice {{ $labels.service }} is burning 2% of its monthly error budget in 1 hour."
+
+      - alert: HighLatencyP95Breached
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)) > 0.300
+        for: 5m
+        labels:
+          severity: warning
+          tier: application
+        annotations:
+          summary: "P95 Latency SLA Breached (>300ms)"
+          description: "Service {{ $labels.service }} has P95 response times of {{ $value }}s over the last 5 minutes."

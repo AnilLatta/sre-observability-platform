@@ -1,0 +1,10 @@
+// ==============================================================================
+// Azure Application Insights - Failed Requests & Root Cause Analysis
+// Author: Anil Kumar (Senior DevOps / SRE)
+// ==============================================================================
+
+requests
+| where timestamp > ago(1h)
+| where success == false
+| summarize FailedCount = count() by resultCode, operation_Name, bin(timestamp, 5m)
+| render timechart

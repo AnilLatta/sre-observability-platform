@@ -1,0 +1,18 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus-Enterprise
+    type: prometheus
+    access: proxy
+    url: http://prometheus-server:9090
+    isDefault: true
+    editable: false
+
+  - name: Azure-Monitor
+    type: grafana-azure-monitor-datasource
+    access: proxy
+    jsonData:
+      cloudName: azuremonitor
+      subscriptionId: "12345678-abcd-ef01-2345-6789abcdef01"
+      tenantId: "87654321-dcba-10fe-5432-10fedcba9876"
+    editable: false

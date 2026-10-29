@@ -1,0 +1,35 @@
+apiVersion: slok.cure53.de/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: payment-engine-availability
+  namespace: monitoring
+spec:
+  service: payment-engine
+  description: "Ensures 99.9% successful HTTP responses for payments over a 30-day rolling window."
+  budgetingInterval: 30d
+  sloWindow: 30d
+  target: 99.9
+  indicator:
+    ratioMetric:
+      total:
+        metric: sum(rate(http_requests_total{service="payment-engine"}[5m]))
+      good:
+        metric: sum(rate(http_requests_total{service="payment-engine", status=~"2..|3.."}[5m]))
+---
+apiVersion: slok.cure53.de/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: payment-engine-latency
+  namespace: monitoring
+spec:
+  service: payment-engine
+  description: "Ensures 95% of payment requests are served in under 200 milliseconds."
+  budgetingInterval: 30d
+  sloWindow: 30d
+  target: 95.0
+  indicator:
+    ratioMetric:
+      total:
+        metric: sum(rate(http_request_duration_seconds_count{service="payment-engine"}[5m]))
+      good:
+        metric: sum(rate(http_request_duration_seconds_bucket{service="payment-engine", le="0.2"}[5m]))

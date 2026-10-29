@@ -1,0 +1,22 @@
+groups:
+  - name: infrastructure_health_alerts
+    rules:
+      - alert: KubernetesPodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[5m]) * 60 > 2
+        for: 4m
+        labels:
+          severity: critical
+          tier: kubernetes
+        annotations:
+          summary: "Pod is CrashLooping in {{ $labels.namespace }}"
+          description: "Pod {{ $labels.pod }} restarted {{ $value }} times within the last 5 minutes."
+
+      - alert: HostDiskRunningFull
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100) < 15
+        for: 10m
+        labels:
+          severity: warning
+          tier: infrastructure
+        annotations:
+          summary: "Host Disk Usage Exceeds 85%"
+          description: "Instance {{ $labels.instance }} has only {{ $value }}% disk space remaining."

@@ -1,0 +1,14 @@
+// ==============================================================================
+// Azure Log Analytics - Container stdout/stderr Critical Error Spikes
+// Author: Anil Kumar
+// ==============================================================================
+
+KubePodInventory
+| where ClusterName == "ril-enterprise-aks-prod"
+| join kind=inner (
+    ContainerLogV2
+    | where TimeGenerated > ago(2h)
+    | where LogMessage has_any ("FATAL", "PANIC", "NullPointerException", "OutOfMemory")
+) on ContainerID
+| project TimeGenerated, PodName, Namespace, LogMessage, LogLevel
+| order by TimeGenerated desc
